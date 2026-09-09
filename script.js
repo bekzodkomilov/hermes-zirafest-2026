@@ -1,435 +1,108 @@
-const EVENT_DATE =
-  new Date(
-    "2026-09-29T10:00:00+05:00"
-  ).getTime();
+const EVENT_DATE = new Date("2026-09-29T10:00:00+05:00").getTime();
 
+const body = document.body;
+const cover = document.getElementById("cover");
+const openBtn = document.getElementById("openBtn");
+const musicBtn = document.getElementById("musicBtn");
+const bottomNav = document.getElementById("bottomNav");
+const whiteTransition = document.getElementById("whiteTransition");
+const revealEls = document.querySelectorAll(".reveal");
 
-const body =
-  document.body;
+let opening = false;
 
-const cover =
-  document.getElementById("cover");
-
-const openBtn =
-  document.getElementById("openBtn");
-
-const musicBtn =
-  document.getElementById("musicBtn");
-
-const bottomNav =
-  document.getElementById("bottomNav");
-
-const reveals =
-  document.querySelectorAll(".reveal");
-
-
-let opened = false;
-
-
-/* =========================
-   COUNTDOWN
-========================= */
-
-function pad(value) {
-  return String(value).padStart(2, "0");
-}
-
+function pad(n) { return String(n).padStart(2, "0"); }
 
 function updateCountdown() {
+  let diff = EVENT_DATE - Date.now();
+  if (diff < 0) diff = 0;
 
-  let distance =
-    EVENT_DATE - Date.now();
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
 
-
-  if (distance < 0) {
-    distance = 0;
-  }
-
-
-  const days =
-    Math.floor(
-      distance / 86400000
-    );
-
-
-  const hours =
-    Math.floor(
-      (distance % 86400000)
-      / 3600000
-    );
-
-
-  const minutes =
-    Math.floor(
-      (distance % 3600000)
-      / 60000
-    );
-
-
-  const seconds =
-    Math.floor(
-      (distance % 60000)
-      / 1000
-    );
-
-
-  document.getElementById(
-    "days"
-  ).textContent = pad(days);
-
-
-  document.getElementById(
-    "hours"
-  ).textContent = pad(hours);
-
-
-  document.getElementById(
-    "minutes"
-  ).textContent = pad(minutes);
-
-
-  document.getElementById(
-    "seconds"
-  ).textContent = pad(seconds);
-
+  document.getElementById("days").textContent = pad(days);
+  document.getElementById("hours").textContent = pad(hours);
+  document.getElementById("minutes").textContent = pad(minutes);
+  document.getElementById("seconds").textContent = pad(seconds);
 }
-
-
 updateCountdown();
+setInterval(updateCountdown, 1000);
 
-setInterval(
-  updateCountdown,
-  1000
-);
-
-
-/* =========================
-   OPEN SOUND
-========================= */
-
-function playOpenSound() {
-
+function playOpenChime() {
   try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 0.04);
+    master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.15);
+    master.connect(ctx.destination);
 
-    const AC =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-
-    const ctx =
-      new AC();
-
-
-    const master =
-      ctx.createGain();
-
-
-    master.gain.setValueAtTime(
-      0.0001,
-      ctx.currentTime
-    );
-
-
-    master.gain.exponentialRampToValueAtTime(
-      0.06,
-      ctx.currentTime + 0.06
-    );
-
-
-    master.gain.exponentialRampToValueAtTime(
-      0.0001,
-      ctx.currentTime + 1.6
-    );
-
-
-    master.connect(
-      ctx.destination
-    );
-
-
-    const notes = [
-      392.0,
-      523.25,
-      659.25,
-      783.99
-    ];
-
-
-    notes.forEach(
-      (frequency, index) => {
-
-        const osc =
-          ctx.createOscillator();
-
-        const gain =
-          ctx.createGain();
-
-
-        osc.type = "sine";
-
-        osc.frequency.value =
-          frequency;
-
-
-        const start =
-          ctx.currentTime +
-          index * 0.09;
-
-
-        gain.gain.setValueAtTime(
-          0.0001,
-          start
-        );
-
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.13,
-          start + 0.05
-        );
-
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          start + 1
-        );
-
-
-        osc.connect(gain);
-
-        gain.connect(master);
-
-
-        osc.start(start);
-
-        osc.stop(
-          start + 1.1
-        );
-
-      }
-    );
-
-  }
-
-  catch (error) {
-    console.log(error);
-  }
-
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const start = ctx.currentTime + i * 0.06;
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.11, start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.75);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(start);
+      osc.stop(start + 0.85);
+    });
+  } catch (_) {}
 }
 
-
-/* =========================
-   ENVELOPE OPENING
-========================= */
-
-openBtn.addEventListener(
-  "click",
-  () => {
-
-    if (opened) return;
-
-    opened = true;
-
-
-    playOpenSound();
-
-
-    /*
-      0.0s
-      seal pulse
-    */
-    cover.classList.add(
-      "seal-active"
-    );
-
-
-    /*
-      0.18s
-      flowers start glowing
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "glow-flower"
-        );
-
-      },
-      180
-    );
-
-
-    /*
-      0.65s
-      warm light from inside
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "light-on"
-        );
-
-      },
-      650
-    );
-
-
-    /*
-      1.20s
-      flap opens
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "open-envelope"
-        );
-
-      },
-      1200
-    );
-
-
-    /*
-      1.85s
-      invitation card rises
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "letter-up"
-        );
-
-      },
-      1850
-    );
-
-
-    /*
-      3.25s
-      main page starts
-    */
-    setTimeout(
-      () => {
-
-        body.classList.add(
-          "opened"
-        );
-
-
-        window.scrollTo(
-          0,
-          0
-        );
-
-
-        revealElements();
-
-      },
-      3250
-    );
-
-
-    /*
-      3.55s
-      cover disappears
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "hide"
-        );
-
-      },
-      3550
-    );
-
-  },
-  { once: true }
-);
-
-
-/* =========================
-   SCROLL REVEAL
-========================= */
-
-function revealElements() {
-
-  reveals.forEach(
-    element => {
-
-      const rect =
-        element.getBoundingClientRect();
-
-
-      if (
-        rect.top <
-        window.innerHeight - 50
-      ) {
-
-        element.classList.add(
-          "visible"
-        );
-
-      }
-
-    }
-  );
-
+function revealOnScroll() {
+  revealEls.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 40) el.classList.add("visible");
+  });
 }
 
+openBtn.addEventListener("click", () => {
+  if (opening) return;
+  opening = true;
 
-/* =========================
-   SCROLL
-========================= */
+  playOpenChime();
 
-window.addEventListener(
-  "scroll",
-  () => {
+  // 1) ONLY the side flowers wake up / glow.
+  cover.classList.add("glow-flower");
 
-    revealElements();
+  // 2) Then the envelope flap opens. No center light effect.
+  setTimeout(() => {
+    cover.classList.add("open-envelope");
+  }, 620);
 
+  // 3) After the flap movement, show a completely clean white screen.
+  setTimeout(() => {
+    whiteTransition.classList.add("show");
+  }, 1480);
 
-    if (
-      body.classList.contains(
-        "opened"
-      )
-      &&
-      window.scrollY > 120
-    ) {
+  // Hide the envelope behind the white screen and prepare the page.
+  setTimeout(() => {
+    cover.classList.add("hide");
+    body.classList.add("opened");
+    window.scrollTo(0, 0);
+    revealOnScroll();
+  }, 1580);
 
-      bottomNav.classList.add(
-        "show"
-      );
+  // 4) Keep the white screen for ~1 second, then reveal the invitation.
+  setTimeout(() => {
+    whiteTransition.classList.remove("show");
+  }, 2480);
+}, { once: true });
 
-    }
+musicBtn.addEventListener("click", playOpenChime);
 
-    else {
-
-      bottomNav.classList.remove(
-        "show"
-      );
-
-    }
-
-  },
-  {
-    passive: true
+window.addEventListener("scroll", () => {
+  revealOnScroll();
+  if (body.classList.contains("opened") && window.scrollY > 90) {
+    bottomNav.classList.add("show");
+  } else {
+    bottomNav.classList.remove("show");
   }
-);
-
-
-/* =========================
-   MUSIC BUTTON
-========================= */
-
-musicBtn.addEventListener(
-  "click",
-  () => {
-
-    playOpenSound();
-
-  }
-);
+}, { passive: true });
