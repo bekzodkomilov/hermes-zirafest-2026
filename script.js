@@ -1,30 +1,10 @@
-const EVENT_DATE =
-  new Date(
-    "2026-09-29T10:00:00+05:00"
-  ).getTime();
+const EVENT_DATE = new Date("2026-09-29T10:00:00+05:00").getTime();
 
+const hero = document.getElementById("heroSection");
+const sealBtn = document.getElementById("sealBtn");
+const innerCard = document.getElementById("innerCard");
 
-const body =
-  document.body;
-
-const cover =
-  document.getElementById("cover");
-
-const openBtn =
-  document.getElementById("openBtn");
-
-const musicBtn =
-  document.getElementById("musicBtn");
-
-const bottomNav =
-  document.getElementById("bottomNav");
-
-const reveals =
-  document.querySelectorAll(".reveal");
-
-
-let opened = false;
-
+let isOpening = false;
 
 /* =========================
    COUNTDOWN
@@ -34,390 +14,136 @@ function pad(value) {
   return String(value).padStart(2, "0");
 }
 
-
 function updateCountdown() {
+  let diff = EVENT_DATE - Date.now();
 
-  let distance =
-    EVENT_DATE - Date.now();
+  if (diff < 0) diff = 0;
 
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
 
-  if (distance < 0) {
-    distance = 0;
-  }
-
-
-  const days =
-    Math.floor(
-      distance / 86400000
-    );
-
-
-  const hours =
-    Math.floor(
-      (distance % 86400000)
-      / 3600000
-    );
-
-
-  const minutes =
-    Math.floor(
-      (distance % 3600000)
-      / 60000
-    );
-
-
-  const seconds =
-    Math.floor(
-      (distance % 60000)
-      / 1000
-    );
-
-
-  document.getElementById(
-    "days"
-  ).textContent = pad(days);
-
-
-  document.getElementById(
-    "hours"
-  ).textContent = pad(hours);
-
-
-  document.getElementById(
-    "minutes"
-  ).textContent = pad(minutes);
-
-
-  document.getElementById(
-    "seconds"
-  ).textContent = pad(seconds);
-
+  document.getElementById("days").textContent = pad(days);
+  document.getElementById("hours").textContent = pad(hours);
+  document.getElementById("minutes").textContent = pad(minutes);
+  document.getElementById("seconds").textContent = pad(seconds);
 }
 
-
 updateCountdown();
-
-setInterval(
-  updateCountdown,
-  1000
-);
+setInterval(updateCountdown, 1000);
 
 
 /* =========================
    OPEN SOUND
 ========================= */
 
-function playOpenSound() {
-
+function playOpenChime() {
   try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
 
-    const AC =
-      window.AudioContext ||
-      window.webkitAudioContext;
+    const ctx = new AudioContextClass();
 
+    const master = ctx.createGain();
 
-    const ctx =
-      new AC();
-
-
-    const master =
-      ctx.createGain();
-
-
-    master.gain.setValueAtTime(
-      0.0001,
-      ctx.currentTime
-    );
-
-
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
     master.gain.exponentialRampToValueAtTime(
-      0.06,
-      ctx.currentTime + 0.06
+      0.055,
+      ctx.currentTime + 0.05
     );
-
-
     master.gain.exponentialRampToValueAtTime(
       0.0001,
-      ctx.currentTime + 1.6
+      ctx.currentTime + 1.5
     );
 
+    master.connect(ctx.destination);
 
-    master.connect(
-      ctx.destination
-    );
+    const notes = [392, 523.25, 659.25, 783.99];
 
+    notes.forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    const notes = [
-      392.0,
-      523.25,
-      659.25,
-      783.99
-    ];
+      const start = ctx.currentTime + index * 0.08;
 
+      osc.type = "sine";
+      osc.frequency.value = freq;
 
-    notes.forEach(
-      (frequency, index) => {
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(
+        0.14,
+        start + 0.05
+      );
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        start + 0.95
+      );
 
-        const osc =
-          ctx.createOscillator();
+      osc.connect(gain);
+      gain.connect(master);
 
-        const gain =
-          ctx.createGain();
-
-
-        osc.type = "sine";
-
-        osc.frequency.value =
-          frequency;
-
-
-        const start =
-          ctx.currentTime +
-          index * 0.09;
-
-
-        gain.gain.setValueAtTime(
-          0.0001,
-          start
-        );
-
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.13,
-          start + 0.05
-        );
-
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          start + 1
-        );
-
-
-        osc.connect(gain);
-
-        gain.connect(master);
-
-
-        osc.start(start);
-
-        osc.stop(
-          start + 1.1
-        );
-
-      }
-    );
-
+      osc.start(start);
+      osc.stop(start + 1);
+    });
+  } catch (error) {
+    console.log("Audio unavailable");
   }
-
-  catch (error) {
-    console.log(error);
-  }
-
 }
 
 
 /* =========================
-   ENVELOPE OPENING
+   ENVELOPE OPEN SEQUENCE
 ========================= */
 
-openBtn.addEventListener(
+sealBtn.addEventListener(
   "click",
   () => {
+    if (isOpening) return;
 
-    if (opened) return;
+    isOpening = true;
 
-    opened = true;
+    playOpenChime();
 
+    // 0.0s — seal glow
+    hero.classList.add("seal-on");
 
-    playOpenSound();
+    // 0.18s — side ornaments light up
+    setTimeout(() => {
+      hero.classList.add("ornaments-on");
+    }, 180);
 
+    // 0.62s — strong warm light from inside
+    setTimeout(() => {
+      hero.classList.add("light-on");
+    }, 620);
 
-    /*
-      0.0s
-      seal pulse
-    */
-    cover.classList.add(
-      "seal-active"
-    );
+    // 1.15s — flap opens
+    setTimeout(() => {
+      hero.classList.add("open-envelope");
+    }, 1150);
 
+    // 1.75s — inner card rises
+    setTimeout(() => {
+      hero.classList.add("card-up");
+    }, 1750);
 
-    /*
-      0.18s
-      flowers start glowing
-    */
-    setTimeout(
-      () => {
+    // 3.0s — fade hero slightly
+    setTimeout(() => {
+      hero.classList.add("hero-finish");
+    }, 3000);
 
-        cover.classList.add(
-          "glow-flower"
-        );
+    // 3.55s — scroll to main content
+    setTimeout(() => {
+      const content = document.getElementById("contentSection");
 
-      },
-      180
-    );
-
-
-    /*
-      0.65s
-      warm light from inside
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "light-on"
-        );
-
-      },
-      650
-    );
-
-
-    /*
-      1.20s
-      flap opens
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "open-envelope"
-        );
-
-      },
-      1200
-    );
-
-
-    /*
-      1.85s
-      invitation card rises
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "letter-up"
-        );
-
-      },
-      1850
-    );
-
-
-    /*
-      3.25s
-      main page starts
-    */
-    setTimeout(
-      () => {
-
-        body.classList.add(
-          "opened"
-        );
-
-
-        window.scrollTo(
-          0,
-          0
-        );
-
-
-        revealElements();
-
-      },
-      3250
-    );
-
-
-    /*
-      3.55s
-      cover disappears
-    */
-    setTimeout(
-      () => {
-
-        cover.classList.add(
-          "hide"
-        );
-
-      },
-      3550
-    );
-
+      content.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 3550);
   },
   { once: true }
-);
-
-
-/* =========================
-   SCROLL REVEAL
-========================= */
-
-function revealElements() {
-
-  reveals.forEach(
-    element => {
-
-      const rect =
-        element.getBoundingClientRect();
-
-
-      if (
-        rect.top <
-        window.innerHeight - 50
-      ) {
-
-        element.classList.add(
-          "visible"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================
-   SCROLL
-========================= */
-
-window.addEventListener(
-  "scroll",
-  () => {
-
-    revealElements();
-
-
-    if (
-      body.classList.contains(
-        "opened"
-      )
-      &&
-      window.scrollY > 120
-    ) {
-
-      bottomNav.classList.add(
-        "show"
-      );
-
-    }
-
-    else {
-
-      bottomNav.classList.remove(
-        "show"
-      );
-
-    }
-
-  },
-  {
-    passive: true
-  }
 );
 
 
@@ -425,11 +151,17 @@ window.addEventListener(
    MUSIC BUTTON
 ========================= */
 
-musicBtn.addEventListener(
-  "click",
-  () => {
+const musicBtn = document.querySelector(".icon-btn");
 
-    playOpenSound();
+musicBtn.addEventListener("click", () => {
+  playOpenChime();
+});
 
-  }
-);
+
+/* =========================
+   MOBILE SAFETY
+========================= */
+
+window.addEventListener("orientationchange", () => {
+  window.scrollTo(0, window.scrollY);
+});
