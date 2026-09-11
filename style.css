@@ -73,34 +73,21 @@ button, input, select { font: inherit; }
 
 .cover-brand {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 66px);
+  top: calc(env(safe-area-inset-top) + 80px);
   left: 24px;
   right: 24px;
   z-index: 70;
   text-align: center;
 }
 .cover-brand img {
-  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 14px;
+  padding: 9px;
   object-fit: contain;
-}
-.cover-brand .zira-cover-logo {
-  width: min(205px, 54vw);
-  height: auto;
-  margin: 0 auto 10px;
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 5px 14px rgba(0,0,0,.2));
-}
-.cover-brand .hermes-cover-logo {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 12px;
-  padding: 8px;
   background: #fff;
-  border-radius: 21px;
-  box-shadow: 0 14px 34px rgba(0,0,0,.18);
+  border-radius: 24px;
+  box-shadow: 0 16px 38px rgba(0,0,0,.18);
 }
 .cover-brand > span {
   display: block;
@@ -128,7 +115,7 @@ button, input, select { font: inherit; }
   position: absolute;
   left: 0;
   right: 0;
-  top: 314px;
+  top: 250px;
   bottom: 56px;
   perspective: 1200px;
   overflow: hidden;
@@ -544,26 +531,13 @@ body.opened .page { opacity: 1; }
 .bottom-nav a:nth-child(3) { color: #392b20; background: linear-gradient(135deg, #e8cb8d, #d2aa61); }
 
 @media (max-width: 390px) {
-  .cover-brand { top: calc(env(safe-area-inset-top) + 62px); }
-  .cover-brand .zira-cover-logo { width: min(178px, 50vw); margin-bottom: 8px; }
-  .cover-brand .hermes-cover-logo { width: 68px; height: 68px; margin-bottom: 10px; }
-  .cover-brand h1 { font-size: 33px; }
-  .envelope { top: 294px; }
-  .floral { width: 108px; }
-  .seal { width: 100px; height: 100px; }
+  .cover-brand { top: calc(env(safe-area-inset-top) + 70px); }
+  .cover-brand img { width: 88px; height: 88px; }
+  .cover-brand h1 { font-size: 35px; }
+  .envelope { top: 226px; }
+  .floral { width: 112px; }
+  .seal { width: 104px; height: 104px; }
   .hero-logo, .final-card img { width: 86px; height: 86px; }
-}
-
-@media (max-height: 760px) {
-  .cover-brand { top: calc(env(safe-area-inset-top) + 58px); }
-  .cover-brand .zira-cover-logo { width: min(150px, 44vw); margin-bottom: 5px; }
-  .cover-brand .hermes-cover-logo { width: 58px; height: 58px; margin-bottom: 7px; padding: 6px; border-radius: 17px; }
-  .cover-brand > span { font-size: 9px; }
-  .cover-brand h1 { margin-top: 8px; font-size: 29px; }
-  .cover-brand h1 em { margin-top: 5px; }
-  .envelope { top: 260px; }
-  .seal { width: 92px; height: 92px; }
-  .seal-inner img { width: 48px; height: 48px; }
 }
 
 /* ---------- STAND LOCATION / BIZNI TOPING ---------- */
