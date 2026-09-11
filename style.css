@@ -539,3 +539,78 @@ body.opened .page { opacity: 1; }
   .seal { width: 104px; height: 104px; }
   .hero-logo, .final-card img { width: 86px; height: 86px; }
 }
+
+/* ---------- STAND LOCATION / BIZNI TOPING ---------- */
+.stand-card {
+  overflow: hidden;
+}
+.stand-intro {
+  max-width: 315px !important;
+}
+.stand-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+.stand-fact {
+  min-height: 88px;
+  padding: 15px 12px;
+  border-radius: 20px;
+  text-align: center;
+  background:
+    linear-gradient(180deg, rgba(15,102,114,.08), rgba(15,102,114,.025)),
+    #fff;
+  border: 1px solid rgba(15,102,114,.11);
+  box-shadow: 0 8px 20px rgba(20,55,60,.045);
+}
+.stand-fact span {
+  display: block;
+  color: var(--brand);
+  font: 800 9px Arial, sans-serif;
+  letter-spacing: .18em;
+}
+.stand-fact strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 400;
+}
+.stand-map-wrap {
+  position: relative;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid rgba(15,102,114,.1);
+  box-shadow: 0 12px 30px rgba(20,55,60,.08);
+}
+.stand-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.stand-map-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 13px;
+  padding: 11px 13px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f6672, #073f48);
+  color: #fff;
+  font: 800 10px Arial, sans-serif;
+  letter-spacing: .08em;
+  text-align: center;
+}
+.stand-map-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(216,184,120,.18);
+}
